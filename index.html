@@ -77,6 +77,21 @@ function toggleEx(n){
   if(cur&&cur.some(function(v){return ex[v]}))pick();else draw();
 }
 function step(i,dlt){if(won||!cur)return;cur=cur.slice();cur[i]=(cur[i]-1+dlt+9)%9+1;marks[i]=0;draw()}
+function fits(h,c){
+  var g=h.g,f=h.f;
+  for(var i=0;i<4;i++){
+    var m=+f[i],has=c.indexOf(g[i])>=0;
+    if(m===2){if(c[i]!==g[i])return false}
+    else if(m===1){if(c[i]===g[i]||!has)return false}
+    else{
+      var dup=false;
+      for(var j=0;j<4;j++)if(j!==i&&g[j]===g[i]&&+f[j]>0)dup=true;
+      if(dup)continue;
+      else if(has)return false;
+    }
+  }
+  return true;
+}
 function score(g,s){
   var r=[0,0,0,0],c={};
   for(var i=0;i<4;i++){if(g[i]===s[i])r[i]=2;else c[s[i]]=(c[s[i]]||0)+1}
@@ -96,7 +111,7 @@ function build(){
   won=false;msg.textContent='';refilter();pick();
 }
 function refilter(){
-  pool=base.filter(function(c){return c.every(function(v){return !ex[v]})&&hist.every(function(h){return score(h.g,c)===h.f})});
+  pool=base.filter(function(c){return c.every(function(v){return !ex[v]})&&hist.every(function(h){return fits(h,c)})});
   all.innerHTML='';
   pool.forEach(function(s){var e=document.createElement('span');e.textContent=s.join('');all.appendChild(e)});
   histEl.innerHTML='';
@@ -117,7 +132,7 @@ document.getElementById('next').onclick=function(){
   var f=marks.join('');
   if(f==='2222'){won=true;msg.style.color='var(--gr)';msg.textContent='Угадали! Это '+cur.join('');return}
   hist.push({g:cur,f:f});refilter();
-  if(!pool.length){var any=false;for(var n=1111;n<=9999&&!any;n++){var a=String(n).split('').map(Number);if(a.indexOf(0)>=0)continue;if(a.every(function(v){return !ex[v]})&&hist.every(function(h){return score(h.g,a)===h.f}))any=true}hist.pop();refilter();msg.style.color='#c92a2a';msg.textContent=any?'Такие пометки не сочетаются со знаками < и >. Например, зелёная 9 перед знаком «<» невозможна: справа нужна цифра больше 9. Проверь знаки и зелёные цифры.':'Пометки противоречат друг другу. Если цифра повторяется (например, две тройки), серая копия значит «больше таких цифр нет», а не «такой цифры нет совсем».';return}
+  if(!pool.length){var any=false;for(var n=1111;n<=9999&&!any;n++){var a=String(n).split('').map(Number);if(a.indexOf(0)>=0)continue;if(a.every(function(v){return !ex[v]})&&hist.every(function(h){return fits(h,a)}))any=true}hist.pop();refilter();msg.style.color='#c92a2a';msg.textContent=any?'Такие пометки не сочетаются со знаками < и >. Например, зелёная 9 перед знаком «<» невозможна: справа нужна цифра больше 9. Проверь знаки и зелёные цифры.':'Пометки противоречат друг другу. Серая цифра означает, что её нет в числе совсем (если такая же цифра не отмечена жёлтой или зелёной в другой клетке). Проверь, не противоречат ли друг другу жёлтые, зелёные и серые пометки.';return}
   msg.textContent='';pick();marks=f.split('').map(function(x){return x==='2'?2:0});draw();
 };
 document.getElementById('reset').onclick=function(){hist=[];ex={};drawEx();build()};
