@@ -37,8 +37,10 @@ details{margin-top:12px;font-size:14px;color:var(--mut)}
 </head>
 <body>
 <div class="w">
-<h1>Угадай 4 цифры по знакам</h1>
-<p>выбирайте знаки больше и меньше между клетками, вам подберутся цифры. нажимайте на цифры, чтобы отметить их цветом (один раз - жёлтая; второй раз - зелёная), и нажимайте "следующий вариант". стрелками ▲▼ можно сменить цифру вручную.</p>
+<h1>1. выберите знаки; вам подберутся цифры</h1>
+<p>  2. нажимайте на цифры, чтобы отметить их цветом (один раз - жёлтая; второй раз - зелёная)
+  3. жмите "следующий вариант"
+  стрелками ▲▼ можно сменить цифру вручную</p>
 <div class="row" id="row"></div>
 <div class="leg"><span><i></i>нет цифры</span><span><i class="y"></i>есть, но не здесь</span><span><i class="g"></i>на своём месте</span></div>
 <button class="b" id="next">Следующий вариант</button>
@@ -47,7 +49,7 @@ details{margin-top:12px;font-size:14px;color:var(--mut)}
 <div id="cnt"></div>
 <div id="hist"></div>
 <details><summary>Показать все оставшиеся варианты</summary><div id="all"></div></details>
-<div class="upd">last update: 15-10-2026 9:25</div>
+<div class="upd">last update: 15-10-2026 9:31 by козушка</div>
 </div>
 <script>
 var signs=['<','>','<'],base=[],pool=[],hist=[],cur=null,marks=[0,0,0,0],won=false;
