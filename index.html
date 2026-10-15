@@ -79,6 +79,7 @@ function toggleEx(n){
 function step(i,dlt){if(won||!cur)return;cur=cur.slice();cur[i]=(cur[i]-1+dlt+9)%9+1;marks[i]=0;draw()}
 function fits(h,c){
   var g=h.g,f=h.f;
+  if(c.join('')===g.join(''))return false;
   for(var i=0;i<4;i++){
     var m=+f[i],has=c.indexOf(g[i])>=0;
     if(m===2){if(c[i]!==g[i])return false}
@@ -118,9 +119,21 @@ function refilter(){
   hist.forEach(function(h){var r=document.createElement('div');r.className='h';
     h.g.forEach(function(v,i){var s=document.createElement('span');s.className='m'+h.f[i];s.textContent=v;r.appendChild(s)});histEl.appendChild(r)});
 }
+function choose(){
+  if(!pool.length)return null;
+  var kn=[0,0,0,0];
+  hist.forEach(function(h){for(var i=0;i<4;i++)if(h.f[i]==='2')kn[i]=1});
+  var best=[],bs=1e9;
+  pool.forEach(function(c){
+    var s=0;
+    for(var i=0;i<3;i++)if(kn[i]||kn[i+1])s+=Math.abs(c[i]-c[i+1]);
+    if(s<bs){bs=s;best=[c]}else if(s===bs)best.push(c);
+  });
+  return best[Math.floor(Math.random()*best.length)];
+}
 function pick(){
   marks=[0,0,0,0];
-  cur=pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
+  cur=choose();
   draw();
 }
 function draw(){
