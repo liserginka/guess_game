@@ -117,8 +117,8 @@ document.getElementById('next').onclick=function(){
   var f=marks.join('');
   if(f==='2222'){won=true;msg.style.color='var(--gr)';msg.textContent='Угадали! Это '+cur.join('');return}
   hist.push({g:cur,f:f});refilter();
-  if(!pool.length){hist.pop();refilter();msg.style.color='#c92a2a';msg.textContent='Нет комбинаций под такие пометки. Проверь их и попробуй снова.';return}
-  msg.textContent='';pick();
+  if(!pool.length){var any=false;for(var n=1111;n<=9999&&!any;n++){var a=String(n).split('').map(Number);if(a.indexOf(0)>=0)continue;if(a.every(function(v){return !ex[v]})&&hist.every(function(h){return score(h.g,a)===h.f}))any=true}hist.pop();refilter();msg.style.color='#c92a2a';msg.textContent=any?'Такие пометки не сочетаются со знаками < и >. Например, зелёная 9 перед знаком «<» невозможна: справа нужна цифра больше 9. Проверь знаки и зелёные цифры.':'Пометки противоречат друг другу. Если цифра повторяется (например, две тройки), серая копия значит «больше таких цифр нет», а не «такой цифры нет совсем».';return}
+  msg.textContent='';pick();marks=f.split('').map(function(x){return x==='2'?2:0});draw();
 };
 document.getElementById('reset').onclick=function(){hist=[];ex={};drawEx();build()};
 build();
