@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Угадай 4 цифры по знакам</title>
+<title>кетварова мини-игра</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mut:#6b6a64;--ac:#3b5bdb;--bd:#d9d7cf;--gr:#2f9e44;--ye:#f2c230}
@@ -31,6 +31,7 @@ button.g2{background:transparent;color:var(--mut);border:1px solid var(--bd);mar
 #hist{margin-top:12px;display:flex;flex-direction:column;gap:4px;align-items:center}
 .h{display:flex;gap:3px}.h span{width:26px;height:26px;border-radius:6px;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;background:var(--bg);border:1px solid var(--bd);color:var(--tx)}
 .h span.m1{background:var(--ye);border-color:var(--ye);color:#1d1d1b}.h span.m2{background:var(--gr);border-color:var(--gr);color:#fff}
+.upd{margin-top:16px;text-align:center;font-size:12px;color:var(--mut)}
 details{margin-top:12px;font-size:14px;color:var(--mut)}
 #all{max-height:160px;overflow-y:auto;margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 12px;font-variant-numeric:tabular-nums;color:var(--tx)}
 </style>
@@ -48,6 +49,7 @@ details{margin-top:12px;font-size:14px;color:var(--mut)}
 <div id="cnt"></div>
 <div id="hist"></div>
 <details><summary>Показать все оставшиеся варианты</summary><div id="all"></div></details>
+<div class="upd">last update: 15-10-2026 9:07</div>
 </div>
 <script>
 var ex={},signs=['<','>','<'],base=[],pool=[],hist=[],cur=null,marks=[0,0,0,0],won=false;
@@ -71,10 +73,18 @@ for(var n=1;n<=9;n++){var eb=document.createElement('button');eb.textContent=n;e
 function drawEx(){for(var n=1;n<=9;n++)exBtns[n].className=ex[n]?'x':''}
 function toggleEx(n){
   if(won)return;
+  if(!ex[n]&&cur){for(var i=0;i<4;i++)if(cur[i]===n&&marks[i]>0){msg.style.color='#c92a2a';msg.textContent='Цифра '+n+' отмечена в текущей попытке жёлтым или зелёным: значит, она в числе.';return}}
   ex[n]=!ex[n];refilter();
   if(!pool.length){ex[n]=!ex[n];refilter();msg.style.color='#c92a2a';msg.textContent='Без цифры '+n+' комбинаций не остаётся.';return}
   msg.textContent='';drawEx();
   draw();
+}
+function conflictMsg(){
+  var bad=[];
+  hist.forEach(function(h){for(var i=0;i<4;i++)if(h.f[i]!=='0'&&ex[h.g[i]]&&bad.indexOf(h.g[i])<0)bad.push(h.g[i])});
+  if(bad.length>1)return 'Цифры '+bad.join(', ')+' вычеркнуты вверху, но в попытках отмечены жёлтым или зелёным: значит, они в числе. Убери вычёркивание.';
+  if(bad.length)return 'Цифра '+bad[0]+' вычеркнута вверху, но в попытке отмечена жёлтым или зелёным: значит, она в числе. Убери вычёркивание.';
+  return 'Эти пометки не сочетаются с цифрами, которые отмечены вверху как отсутствующие.';
 }
 function anyFits(useSigns,useEx){
   for(var n=1111;n<=9999;n++){
@@ -156,7 +166,7 @@ document.getElementById('next').onclick=function(){
   var f=marks.join('');
   if(f==='2222'){won=true;msg.style.color='var(--gr)';msg.textContent='Угадали! Это '+cur.join('');return}
   hist.push({g:cur,f:f});refilter();
-  if(!pool.length){var why=!anyFits(false,false)?'Эти пометки противоречат друг другу при любых знаках. Проверь, что цифры и цвета в попытках совпадают с игрой.':!anyFits(true,false)?'Эти пометки не сочетаются со знаками < и >. Проверь знаки и введённые попытки.':'Эти пометки не сочетаются с цифрами, которые отмечены вверху как отсутствующие.';hist.pop();refilter();msg.style.color='#c92a2a';msg.textContent=why;return}
+  if(!pool.length){var why=!anyFits(false,false)?'Эти пометки противоречат друг другу при любых знаках. Проверь, что цифры и цвета в попытках совпадают с игрой.':!anyFits(true,false)?'Эти пометки не сочетаются со знаками < и >. Проверь знаки и введённые попытки.':conflictMsg();hist.pop();refilter();msg.style.color='#c92a2a';msg.textContent=why;return}
   msg.textContent='';pick();marks=f.split('').map(function(x){return x==='2'?2:0});draw();
 };
 document.getElementById('reset').onclick=function(){hist=[];ex={};drawEx();build()};
